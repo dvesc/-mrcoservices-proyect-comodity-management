@@ -21,6 +21,7 @@ import { Update_commodity_dto } from './dto/update-commodity.dto';
 import { Commodity_vo } from './entities/commodity.entity';
 import { Commodity_duplication_exception } from '../../errors/Commodity_duplication_exception';
 import { Nonexistent_commodity_exception } from '../../errors/Nonexistent_commodity_exception';
+import { OwnCommoditiesGuard } from './own_commodities.guard';
 
 //Serian las rutas
 @Controller('commodities')
@@ -29,7 +30,7 @@ export class CommoditiesController {
   constructor(private readonly commoditiesService: CommoditiesService) {}
 
   //CRUD-----------------------------------------------------------------------
-  //@UseGuards(Auth0TokenGuard)
+  @UseGuards(Auth0TokenGuard)
   @Post()
   //Este sera el codigo de respuesta predeterminado
   @HttpCode(HttpStatus.CREATED)
@@ -81,21 +82,18 @@ export class CommoditiesController {
     switch (filter_by) {
       case 'all':
         coincidences = await this.commoditiesService.coincidences_by_all(
-          filter_by,
           filter_value,
           sort,
         );
         break;
       case 'name':
         coincidences = await this.commoditiesService.coincidences_by_name(
-          filter_by,
           filter_value,
           sort,
         );
         break;
       case 'user_id':
         coincidences = await this.commoditiesService.coincidences_by_user_id(
-          filter_by,
           filter_value,
           sort,
         );
@@ -104,7 +102,7 @@ export class CommoditiesController {
     return paginated_data(page, size, coincidences, req);
   }
 
-  @UseGuards(Auth0TokenGuard)
+  @UseGuards(Auth0TokenGuard, OwnCommoditiesGuard)
   @Put(':commodity_id')
   @HttpCode(HttpStatus.OK)
   async update(
@@ -117,7 +115,6 @@ export class CommoditiesController {
       await this.commoditiesService.find_by_id(commodity_id);
     //Comprobamos que exista dicha commodity
     if (!original_commodity) throw new Nonexistent_commodity_exception();
-    //VALIDAR QUE LA COMODITY PERTENESCA AL USUARIO
 
     //actualizamos la commodity
     await this.commoditiesService.update(commodity_id, update_commodity_dto);
@@ -128,7 +125,7 @@ export class CommoditiesController {
     };
   }
 
-  @UseGuards(Auth0TokenGuard)
+  @UseGuards(Auth0TokenGuard, OwnCommoditiesGuard)
   @Delete(':commodity_id')
   @HttpCode(HttpStatus.OK)
   async remove(@Param() params) {

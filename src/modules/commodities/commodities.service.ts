@@ -25,7 +25,6 @@ export class CommoditiesService {
 
   //BUSCA COMMODITY POR TODO--------------------------------------------------------
   async coincidences_by_all(
-    filterby: string,
     filtervalue: string,
     sort: object,
   ): Promise<Commodity_vo[]> {
@@ -34,11 +33,7 @@ export class CommoditiesService {
       const reg_exp = new RegExp(`${filtervalue}`, 'i');
 
       //Creamos el filtro
-      const terms: object[] = [
-          { name: reg_exp },
-          //Solo cuando filtervalue pueda ser un numero
-          { user_id: Number(filtervalue) ? parseInt(filtervalue) : -1 },
-        ],
+      const terms: object[] = [{ name: reg_exp }, { user_id: filtervalue }],
         filter = { $and: [{ discharge_date: null }, { $or: terms }] };
 
       //Consultamos la db
@@ -51,7 +46,6 @@ export class CommoditiesService {
 
   //COINCIDENCIA POR NOMBRE----------------------------------------------------
   async coincidences_by_name(
-    filterby: string,
     filtervalue: string,
     sort: object,
   ): Promise<Commodity_vo[]> {
@@ -74,7 +68,6 @@ export class CommoditiesService {
   }
   //COINCIDENCIAS POR USER ID--------------------------------------------------
   async coincidences_by_user_id(
-    filterby: string,
     filtervalue: string,
     sort: object,
   ): Promise<Commodity_vo[]> {
@@ -83,8 +76,7 @@ export class CommoditiesService {
       //Consultamos la db
       coincidences = await this.model
         .find({
-          //solo si filter_value es numero
-          user_id: Number(filtervalue) ? parseInt(filtervalue) : -1,
+          user_id: filtervalue,
           discharge_date: null,
         })
         .sort(sort);
@@ -94,14 +86,28 @@ export class CommoditiesService {
       //MANEJAR ERROR
     }
   }
-  //ENCUENTRA UNO POR USE ID Y NOMBRE------------------------------------------
+
+  //ENCUENTRA UNO POR USER ID------------------------------------------
+  async find_by_user_id(user_id: string): Promise<Commodity_vo> {
+    try {
+      const coincidence: Commodity_vo = await this.model.findOne({
+        user_id: user_id,
+        discharge_date: null,
+      });
+
+      return coincidence;
+    } catch (err) {
+      //MANEJAR ERROR
+    }
+  }
+
+  //ENCUENTRA UNO POR USER ID Y NOMBRE------------------------------------------
   async find_by_user_id_and_name(
-    user_id: number,
+    user_id: string,
     commodity_name: string,
   ): Promise<Commodity_vo> {
     try {
       const coincidence: Commodity_vo = await this.model.findOne({
-        //solo si filter_value es numero
         user_id: user_id,
         name: commodity_name,
         discharge_date: null,
@@ -145,7 +151,9 @@ export class CommoditiesService {
     //LLamamos a la commodity original y actualizamos
     const original_commodity = await this.find_by_id(id);
     await original_commodity.updateOne({
-      discharge_date: Date(),
+      $set: {
+        discharge_date: Date(),
+      },
     });
     return true;
   }

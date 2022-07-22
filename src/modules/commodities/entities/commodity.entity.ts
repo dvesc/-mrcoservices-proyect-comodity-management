@@ -2,14 +2,14 @@ import { Schema, ObjectId } from 'mongoose';
 
 export interface Commodity_vo {
   _id: ObjectId;
-  user_id: number;
+  user_id: string;
   name: string;
   registration_date?: Date;
   discharge_date?: Date;
 }
 
 export const commodity_schema = new Schema<Commodity_vo>({
-  user_id: { type: Number, required: true, default: null },
+  user_id: { type: String, required: true, default: null },
   name: { type: String, required: true },
   discharge_date: { type: Date, default: null },
   registration_date: { type: Date, required: true, default: new Date() },

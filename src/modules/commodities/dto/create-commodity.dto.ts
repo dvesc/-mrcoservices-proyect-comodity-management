@@ -1,11 +1,10 @@
-import { IsAlpha, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsAlpha, IsAscii, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateCommodityDto {
-  @IsAlpha() //La string no puede tener numeros
+  @IsAscii()
   @IsNotEmpty() //No puede estar vacio
   name: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  user_id: number;
+  @IsNotEmpty() //No puede estar vacio
+  user_id: string;
 }

@@ -2,6 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 export default registerAs('auth0', () => ({
   api_domain: process.env.AUTH0_DOMAIN,
+  client_id: process.env.AUTH0_CLIENT,
 }));
 
 /**

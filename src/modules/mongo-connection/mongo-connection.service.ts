@@ -21,8 +21,7 @@ export class MongoConnectionService {
     this.dbconection = await mongoose.createConnection(mongo_uri); //crea la coneccion
     //si la conexion es exitosa
     this.dbconection.once('open', () => {
-      console.log('esto no funciona njs');
-      console.log('Connected to mongo dbd');
+      console.log('Connected to mongo db');
     });
     //si la conexion no funcionas
     this.dbconection.once('error', () => {
